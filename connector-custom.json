@@ -1,0 +1,11 @@
+{
+  "name": "meu-conector-personalizado",
+  "config": {
+    "connector.class": "com.common.custom.connector.CustomSinkConnector",
+    "tasks.max": "1",
+    "topics": "users-topic",
+    "connection.url": "jdbc:postgresql://postgres:5432/mydatabase",
+    "connection.user": "myuser",
+    "connection.password": "mypassword"
+  }
+}
