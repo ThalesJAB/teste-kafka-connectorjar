@@ -7,13 +7,10 @@ import com.common.custom.repositories.UserRepository;
 import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.data.Struct;
-import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkTask;
 import org.json.JSONObject;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.HashMap;
@@ -27,7 +24,12 @@ public class CustomSinkTask extends SinkTask {
     public void start(Map<String, String> map) {
         // Inicializa o contexto do Spring
         ApplicationContext context = new AnnotationConfigApplicationContext(App.class);
+        //        context.register(App.class); // Registra a classe de configuração do Spring
+//        context.register(DataSourceConfig.class); // Registra a configuração do DataSource
+//        context.refresh(); // Atualiza o contexto
         this.userRepository = context.getBean(UserRepository.class);
+
+
     }
 
     @Override
