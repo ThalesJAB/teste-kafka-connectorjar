@@ -32,7 +32,7 @@ services:
     user: "0:0"
     depends_on:
       - kafka
-      - postgres
+      - mongodb
     networks:
       - kafka-network
     environment:
@@ -64,14 +64,12 @@ services:
         # Ajusta as permissões para permitir escrita
         chmod -R 777 /usr/share/plugins/
         
-        # Baixa o driver JDBC do PostgreSQL
-        wget -P /usr/share/plugins https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
+        # Baixa o conector MongoDB
+        wget -P /usr/share/plugins https://github.com/mongodb/mongo-kafka/releases/download/r1.9.0/mongodb-kafka-connect-mongodb-1.9.0.zip
+        unzip /usr/share/plugins/mongodb-kafka-connect-mongodb-1.9.0.zip -d /usr/share/plugins/
         
-        # Instala o conector JDBC
-        confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
-        
-        # Exporta o CLASSPATH
-        # export CLASSPATH="/usr/share/plugins/postgresql-42.6.0.jar:/usr/share/plugins/teste-kafka-connector-1.0.jar:$CLASSPATH"
+        # Instala o conector MongoDB
+        confluent-hub install --no-prompt /usr/share/plugins/mongodb-kafka-connect-mongodb-1.9.0.zip
         
         # Inicia o Kafka Connect
         /etc/confluent/docker/run
@@ -79,17 +77,16 @@ services:
       - kafka-connect-plugins:/usr/share/plugins
       - ./target/teste-kafka-connectorjar-1.0-SNAPSHOT-shaded.jar:/usr/share/plugins/teste-kafka-connector-1.0.jar
 
-  postgres:
-    image: postgres:latest
-    container_name: postgres
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb
     environment:
-      POSTGRES_DB: mydatabase
-      POSTGRES_USER: myuser
-      POSTGRES_PASSWORD: mypassword
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - postgres-data:/var/lib/postgresql/data
+      - mongodb-data:/data/db
     networks:
       - kafka-network
 
@@ -109,4 +106,4 @@ services:
 
 volumes:
   kafka-connect-plugins:
-  postgres-data:
+  mongodb-data:

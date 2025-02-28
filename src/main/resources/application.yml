@@ -1,24 +1,9 @@
 spring:
-  datasource:
-    url: jdbc:postgresql://postgres:5432/mydatabase
-    username: myuser
-    password: mypassword
-    driver-class-name: org.postgresql.Driver
-  jpa:
-    hibernate:
-      ddl-auto: none
-      naming:
-        physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
-    show-sql: false
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
-        format_sql: true
-        jdbc:
-          batch_size: 9
-    database-platform: org.hibernate.dialect.PostgreSQLDialect
-  main:
-    allow-bean-definition-overriding: true
-  sql:
-    init:
-      platform: postgres
+  data:
+    mongodb:
+      host: mongodb
+      port: 27017
+      database: mydatabase
+      username: root
+      password: example
+      authentication-database: admin

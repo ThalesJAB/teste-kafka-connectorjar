@@ -1,6 +1,6 @@
 package com.common.custom.task;
 
-import com.common.custom.App;
+import com.common.custom.config.SpringContextProvider;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.common.custom.model.User;
 import com.common.custom.repositories.UserRepository;
@@ -8,27 +8,28 @@ import org.apache.kafka.connect.data.Field;
 import org.apache.kafka.connect.sink.SinkRecord;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.sink.SinkTask;
-import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import org.springframework.stereotype.Component;
+import org.json.JSONObject;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class CustomSinkTask extends SinkTask {
 
+    @Autowired
     private UserRepository userRepository;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     @Override
     public void start(Map<String, String> map) {
-        // Inicializa o contexto do Spring
-        ApplicationContext context = new AnnotationConfigApplicationContext(App.class);
-        //        context.register(App.class); // Registra a classe de configuração do Spring
-//        context.register(DataSourceConfig.class); // Registra a configuração do DataSource
-//        context.refresh(); // Atualiza o contexto
+        // Pegamos o contexto do Spring e inicializamos o UserRepository
+        ApplicationContext context = SpringContextProvider.getApplicationContext();
         this.userRepository = context.getBean(UserRepository.class);
-
 
     }
 
@@ -84,6 +85,7 @@ public class CustomSinkTask extends SinkTask {
 
     @Override
     public void stop() {
+
     }
 
     @Override
