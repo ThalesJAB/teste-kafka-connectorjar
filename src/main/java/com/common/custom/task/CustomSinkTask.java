@@ -1,5 +1,6 @@
 package com.common.custom.task;
 
+import com.common.custom.App;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.common.custom.model.User;
 import com.common.custom.repositories.UserRepository;
@@ -9,20 +10,24 @@ import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.sink.SinkTask;
 import org.json.JSONObject;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import org.springframework.stereotype.Service;
 
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-@Service
 public class CustomSinkTask extends SinkTask {
 
     private UserRepository userRepository;
 
     @Override
     public void start(Map<String, String> map) {
-
+        // Inicializa o contexto do Spring
+        ApplicationContext context = new AnnotationConfigApplicationContext(App.class);
+        this.userRepository = context.getBean(UserRepository.class);
     }
 
     @Override

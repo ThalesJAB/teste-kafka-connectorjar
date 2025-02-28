@@ -29,6 +29,7 @@ services:
 
   kafka-connect:
     image: confluentinc/cp-kafka-connect:latest
+    user: "0:0"
     depends_on:
       - kafka
       - postgres
@@ -49,34 +50,34 @@ services:
       CONNECT_KEY_CONVERTER_SCHEMAS_ENABLE: "false"
       CONNECT_VALUE_CONVERTER: "org.apache.kafka.connect.json.JsonConverter"
       CONNECT_VALUE_CONVERTER_SCHEMAS_ENABLE: "true"
-      CONNECT_PLUGIN_PATH: "/usr/share/java,/usr/share/confluent-hub-components,/usr/share/plugins"
+      CONNECT_PLUGIN_PATH: "/usr/share/plugins"
     ports:
       - "8083:8083"
+
     command:
       - bash
       - -c
       - |
+        # Cria o diretório se não existir
+        mkdir -p /usr/share/plugins/
+        
+        # Ajusta as permissões para permitir escrita
+        chmod -R 777 /usr/share/plugins/
+        
         # Baixa o driver JDBC do PostgreSQL
         wget -P /usr/share/plugins https://jdbc.postgresql.org/download/postgresql-42.6.0.jar
         
-        # Instala o conector JDBC automaticamente
+        # Instala o conector JDBC
         confluent-hub install --no-prompt confluentinc/kafka-connect-jdbc:latest
         
-        # Adiciona o driver ao classpath explicitamente
-        export CLASSPATH=/usr/share/plugins/postgresql-42.6.0.jar:/usr/share/plugins/teste-kafka-connector-1.0.jar
+        # Exporta o CLASSPATH
+        export CLASSPATH="/usr/share/plugins/postgresql-42.6.0.jar:/usr/share/plugins/teste-kafka-connector-1.0.jar:$CLASSPATH"
         
         # Inicia o Kafka Connect
         /etc/confluent/docker/run
-        
-        # Aguarda o Kafka Connect iniciar
-        sleep 15
-        
-        # Registra o conector automaticamente
-        curl -X POST -H "Content-Type: application/json" --data @/tmp/my-connector.json http://localhost:8083/connectors
     volumes:
       - kafka-connect-plugins:/usr/share/plugins
-      - ./connector-custom.json:/tmp/connector-custom.json
-      - ./target/teste-kafka-connectorjar-1.0-SNAPSHOT.jar:/usr/share/plugins/teste-kafka-connector-1.0.jar
+      - ./target/teste-kafka-connectorjar-1.0-SNAPSHOT-shaded.jar:/usr/share/plugins/teste-kafka-connector-1.0.jar
 
   postgres:
     image: postgres:latest
